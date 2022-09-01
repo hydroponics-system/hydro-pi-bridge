@@ -4,7 +4,13 @@
 name: Build Pi-Bridge
 
 on:
+  push:
+    branches:
+      - "**"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:

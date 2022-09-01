@@ -1,0 +1,34 @@
+# Will Release hydro-pi-bridge to be built. This will only get run when merging to master and if the build passes.
+
+name: Release Version
+
+on:
+  workflow_run:
+    workflows: ["Build Pi-Bridge"]
+    types: [completed]
+    branches: [master]
+
+jobs:
+  on-success:
+    name: Pi-Bridge Release
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create Tag and Release
+        id: versionBump
+        uses: hydroponics-system/version-release@v1.5.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.versionBump.outputs.tag }}
+          release_name: ${{ steps.versionBump.outputs.release_name }}
+          body: ${{ steps.versionBump.outputs.body }}
+          draft: false
+          prerelease: false
