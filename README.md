@@ -1,7 +1,1 @@
-# Installing Dependencies
-
-- Run Command:
-
-```sh
-$ python setup.py
-```
+# Hydro Pi Bridge
