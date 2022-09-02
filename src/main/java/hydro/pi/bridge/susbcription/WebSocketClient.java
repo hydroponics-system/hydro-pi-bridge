@@ -7,7 +7,6 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -240,8 +239,7 @@ public class WebSocketClient {
         do {
             LOGGER.info("Connecting to Socket url...");
             try {
-                ListenableFuture<StompSession> futureClient = stompClient.connect(this.url, this.handler);
-                this.session = futureClient.get();
+                this.session = stompClient.connect(this.url, this.handler).get();
                 break;
             }
             catch(Exception e) {
