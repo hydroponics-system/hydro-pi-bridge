@@ -11,12 +11,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * @since March 24, 2022
  */
 @JsonInclude(Include.NON_DEFAULT)
-public interface NotificationBody {
+public interface Notification {
 
     /**
      * A text value identifying the notification body type.
      * 
-     * @return NotificationBodyType
+     * @return {@link NotificationType} of the notification
      */
-    NotificationBodyType getBodyType();
+    NotificationType getType();
 }

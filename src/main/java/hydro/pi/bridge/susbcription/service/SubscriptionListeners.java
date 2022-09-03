@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.springframework.util.Assert;
 
-import hydro.pi.bridge.susbcription.abstracts.Listener;
 import hydro.pi.bridge.susbcription.client.SubscriptionClient;
+import hydro.pi.bridge.susbcription.domain.Notification;
+import hydro.pi.bridge.susbcription.listeners.Listener;
 
 /**
  * Subscription Listeners class that will register a listener on an active
@@ -40,10 +41,19 @@ public class SubscriptionListeners {
      * @param <T> The generic type of the listener.
      * @param l   The listener to register.
      */
-    public <T> void register(Listener<T> l) {
+    public <T extends Notification> void register(Listener<T> l) {
         Assert.notNull(l, "Listener can not be null");
 
         listeners.add(l);
-        client.listen(l.url(), l.resultType()).subscribe(res -> l.run(res));
+        client.listen(l.url(), l.type()).subscribe(res -> l.run(res));
+    }
+
+    /**
+     * Gets the active listeners on the session.
+     * 
+     * @return List of the active listeners.
+     */
+    public List<Listener<?>> getListeners() {
+        return listeners;
     }
 }

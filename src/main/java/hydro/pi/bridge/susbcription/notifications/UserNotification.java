@@ -1,4 +1,7 @@
-package hydro.pi.bridge.susbcription.domain;
+package hydro.pi.bridge.susbcription.notifications;
+
+import hydro.pi.bridge.susbcription.domain.Notification;
+import hydro.pi.bridge.susbcription.domain.NotificationType;
 
 /**
  * User Subscription Notification
@@ -6,7 +9,7 @@ package hydro.pi.bridge.susbcription.domain;
  * @author Sam Butler
  * @since March 24, 2022
  */
-public class UserNotification implements NotificationBody {
+public class UserNotification implements Notification {
     private int userId;
 
     private String name;
@@ -28,7 +31,7 @@ public class UserNotification implements NotificationBody {
     }
 
     @Override
-    public NotificationBodyType getBodyType() {
-        return NotificationBodyType.USER;
+    public NotificationType getType() {
+        return NotificationType.USER;
     }
 }

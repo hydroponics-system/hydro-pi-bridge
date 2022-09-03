@@ -1,4 +1,6 @@
-package hydro.pi.bridge.susbcription.abstracts;
+package hydro.pi.bridge.susbcription.listeners;
+
+import hydro.pi.bridge.susbcription.domain.Notification;
 
 /**
  * Listener interface for subscriptions.
@@ -6,7 +8,7 @@ package hydro.pi.bridge.susbcription.abstracts;
  * @author Sam Butler
  * @since Sepetember 2, 2022
  */
-public interface Listener<T> {
+public interface Listener<T extends Notification> {
 
     /**
      * Run method for the listener. This is what will get processed when the
@@ -21,7 +23,7 @@ public interface Listener<T> {
      * 
      * @return The class value of the object.
      */
-    public Class<T> resultType();
+    public Class<T> type();
 
     /**
      * The string path of the topic or queue to listen on.
