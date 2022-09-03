@@ -1,4 +1,4 @@
-package hydro.pi.bridge.susbcription;
+package hydro.pi.bridge.susbcription.domain;
 
 import java.lang.reflect.Type;
 

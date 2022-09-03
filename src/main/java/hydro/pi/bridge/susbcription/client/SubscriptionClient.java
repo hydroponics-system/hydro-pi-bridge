@@ -1,4 +1,4 @@
-package hydro.pi.bridge.susbcription;
+package hydro.pi.bridge.susbcription.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +10,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import hydro.pi.bridge.susbcription.domain.SocketFrameHandler;
+import hydro.pi.bridge.susbcription.domain.SocketSessionHandler;
 import rx.subjects.BehaviorSubject;
 
 /**
@@ -46,7 +48,7 @@ public class SubscriptionClient {
      * Default empty constructor to initializing the object.
      */
     public SubscriptionClient() {
-        this("", null);
+        this("",null);
     }
 
     /**
@@ -56,7 +58,7 @@ public class SubscriptionClient {
      * @param handler The handler to use for socket connection.
      */
     public <T extends StompSessionHandler> SubscriptionClient(T handler) {
-        this("", handler);
+        this("",handler);
     }
 
     /**
@@ -65,7 +67,7 @@ public class SubscriptionClient {
      * @param url The url to be used.
      */
     public SubscriptionClient(String url) {
-        this(url, null);
+        this(url,null);
     }
 
     /**
@@ -92,8 +94,7 @@ public class SubscriptionClient {
      * <pre>
      * WebSocketClient client = new WebSocketClient();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync("/topic");
-     * connectionSubject.subscribe(res -> {
-     * });
+     * connectionSubject.subscribe(res -> {});
      * </pre>
      * 
      * </blockquote>
@@ -116,8 +117,7 @@ public class SubscriptionClient {
      * WebSocketClient client = new WebSocketClient();
      * MyStompSessionHandler handler = new MyStompSessionHandler();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync("/topic", handler);
-     * connectionSubject.subscribe(res -> {
-     * });
+     * connectionSubject.subscribe(res -> {});
      * </pre>
      * 
      * </blockquote>
@@ -142,8 +142,7 @@ public class SubscriptionClient {
      * WebSocketClient client = new WebSocketClient();
      * MyStompSessionHandler handler = new MyStompSessionHandler();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync("/topic", handler);
-     * connectionSubject.subscribe(res -> {
-     * });
+     * connectionSubject.subscribe(res -> {});
      * </pre>
      * 
      * </blockquote>
@@ -168,8 +167,7 @@ public class SubscriptionClient {
      * <pre>
      * WebSocketClient client = new WebSocketClient();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync();
-     * connectionSubject.subscribe(res -> {
-     * });
+     * connectionSubject.subscribe(res -> {});
      * </pre>
      * 
      * </blockquote>
@@ -245,16 +243,19 @@ public class SubscriptionClient {
             try {
                 this.session = stompClient.connect(this.url, this.handler).get();
                 break;
-            } catch (Exception e) {
+            }
+            catch(Exception e) {
                 LOGGER.info("Could not establish connection. Reconnecting in {} seconds...", RECONNECT_DELAY / 1000);
             }
 
             try {
                 Thread.sleep(RECONNECT_DELAY);
-            } catch (InterruptedException e) {
+            }
+            catch(InterruptedException e) {
                 LOGGER.info("Could not trigger thread to sleep.");
             }
-        } while (this.session == null || !this.session.isConnected());
+        }
+        while(this.session == null || !this.session.isConnected());
 
         LOGGER.info("Connection established with session id: '{}'", session.getSessionId());
     }
@@ -268,10 +269,11 @@ public class SubscriptionClient {
     public BehaviorSubject<StompSession> reconnect() {
         LOGGER.warn("Attempting reconnect...");
 
-        if (this.session != null && !this.session.isConnected()) {
-            if (this.isAsync) {
+        if(this.session != null && !this.session.isConnected()) {
+            if(this.isAsync) {
                 return this.connectAsync();
-            } else {
+            }
+            else {
                 this.connect();
                 this.onDisconnect();
                 return BehaviorSubject.create(this.session);
@@ -291,8 +293,7 @@ public class SubscriptionClient {
      * WebSocketClient client = new WebSocketClient();
      * client.connect("/api/websocket");
      * BehaviorSubject<CustomClass> listenerSubject = client.listen("/topic", CustomClass.class);
-     * listenerSubject.subscribe(res -> {
-     * });
+     * listenerSubject.subscribe(res -> {});
      * </pre>
      * 
      * </blockquote>
@@ -316,15 +317,16 @@ public class SubscriptionClient {
      * @return {@link BehaviorSubject} of the data.
      */
     public BehaviorSubject<Void> onDisconnect() {
-        if (this.isAsync) {
+        if(this.isAsync) {
             this.DISCONNECT_SUBJECT = BehaviorSubject.create();
         }
 
         new Thread(() -> {
-            while (this.session.isConnected()) {
+            while(this.session.isConnected()) {
                 try {
                     Thread.sleep(1000);
-                } catch (Exception e) {
+                }
+                catch(Exception e) {
                     LOGGER.info("Could not trigger thread to sleep.");
                 }
             }
@@ -360,13 +362,13 @@ public class SubscriptionClient {
     private void initClient() {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        stompClient.setDefaultHeartbeat(new long[] { 20000, 20000 });
+        stompClient.setDefaultHeartbeat(new long[] {20000, 20000});
         stompClient.setTaskScheduler(taskScheduler());
     }
 
     /**
-     * Creates a default task scheduler for setting a heartbeat between the
-     * server and the client.
+     * Creates a default task scheduler for setting a heartbeat between the server
+     * and the client.
      * 
      * @return {@link ThreadPoolTaskScheduler} with the set pool size.
      */
