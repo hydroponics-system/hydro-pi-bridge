@@ -1,6 +1,7 @@
 package hydro.pi.bridge;
 
-import hydro.pi.bridge.susbcription.WebSocketClient;
+import hydro.pi.bridge.logger.LoggerConfig;
+import hydro.pi.bridge.susbcription.SubscriptionClient;
 
 /**
  * Main Application to run
@@ -9,16 +10,19 @@ import hydro.pi.bridge.susbcription.WebSocketClient;
  * @since September 2, 2022
  */
 public class PiBridgeApp {
-    private static final String url = "ws://localhost:8000/subscription/socket?eyJhbGciOiJIUzUxMiJ9.eyJ3ZWJSb2xlIjoiVVNFUiIsImZpcnN0TmFtZSI6IlNhbXVlbCIsImxhc3ROYW1lIjoiQnV0bGVyIiwicGFzc3dvcmRSZXNldCI6ZmFsc2UsImVudiI6IkxPQ0FMIiwiZXhwIjoxNjYyMTY4ODQ3LCJ1c2VySWQiOjEsImlhdCI6MTY2MjE1MDg0NywiZW1haWwiOiJzYW1idXRsZXIxMDE3QGljbG91ZC5jb20iLCJqd3RUeXBlIjoiV0VCIn0.6lSkuCpGtwtMrequNqUiBKindpV7waaL-fm6BigBGtA5tu2YzcE5y5YYcgVXgJMyDmSREU1hThyNdAlhnMDADA";
+    private static final String url = "ws://localhost:8000/subscription/socket?eyJhbGciOiJIUzUxMiJ9.eyJ3ZWJSb2xlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJTYW11ZWwiLCJsYXN0TmFtZSI6IkJ1dGxlciIsInBhc3N3b3JkUmVzZXQiOmZhbHNlLCJlbnYiOiJMT0NBTCIsImV4cCI6MTY2MjE5NjI2NSwidXNlcklkIjoxLCJpYXQiOjE2NjIxNzgyNjUsImVtYWlsIjoic2FtYnV0bGVyMTAxN0BpY2xvdWQuY29tIiwiand0VHlwZSI6IldFQiJ9.nqOFUa6Zhj-KFqcqrO9r0ul1gKSfH0on1TFEnJ7oBA59hln8gwdGFPqPMNbQGI6NMmHxftKz6O9wwBG8eALPhw";
 
     public static void main(String[] args) {
-        WebSocketClient client = new WebSocketClient();
+        LoggerConfig.init();
+        SubscriptionClient client = new SubscriptionClient();
         client.connectAsync(url).subscribe(res -> addListeners(client));
-        while(true) {}
+        while (true) {
+        }
     }
 
-    private static void addListeners(WebSocketClient socketClient) {
-        socketClient.listen("/topic/general/notification", Object.class).subscribe(res -> System.out.println(res));
+    private static void addListeners(SubscriptionClient client) {
+        client.listen("/topic/general/notification", Object.class)
+                .subscribe(res -> System.out.println("DATA: " + res));
 
     }
 }

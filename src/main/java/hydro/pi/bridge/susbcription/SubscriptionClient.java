@@ -20,11 +20,11 @@ import rx.subjects.BehaviorSubject;
  * @author Sam Butler
  * @since March 30, 2022
  */
-public class WebSocketClient {
+public class SubscriptionClient {
 
     private final int RECONNECT_DELAY = 5000;
 
-    private final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(SubscriptionClient.class);
 
     private WebSocketStompClient stompClient;
 
@@ -45,8 +45,8 @@ public class WebSocketClient {
     /**
      * Default empty constructor to initializing the object.
      */
-    public WebSocketClient() {
-        this("",null);
+    public SubscriptionClient() {
+        this("", null);
     }
 
     /**
@@ -55,8 +55,8 @@ public class WebSocketClient {
      * 
      * @param handler The handler to use for socket connection.
      */
-    public <T extends StompSessionHandler> WebSocketClient(T handler) {
-        this("",handler);
+    public <T extends StompSessionHandler> SubscriptionClient(T handler) {
+        this("", handler);
     }
 
     /**
@@ -64,8 +64,8 @@ public class WebSocketClient {
      * 
      * @param url The url to be used.
      */
-    public WebSocketClient(String url) {
-        this(url,null);
+    public SubscriptionClient(String url) {
+        this(url, null);
     }
 
     /**
@@ -75,7 +75,7 @@ public class WebSocketClient {
      * @param url     The url to be used.
      * @param handler The handler to use for socket connection.
      */
-    public <T extends StompSessionHandler> WebSocketClient(String url, T handler) {
+    public <T extends StompSessionHandler> SubscriptionClient(String url, T handler) {
         this.CONNECT_SUBJECT = BehaviorSubject.create();
         this.DISCONNECT_SUBJECT = BehaviorSubject.create();
         this.url = url;
@@ -92,7 +92,8 @@ public class WebSocketClient {
      * <pre>
      * WebSocketClient client = new WebSocketClient();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync("/topic");
-     * connectionSubject.subscribe(res -> {});
+     * connectionSubject.subscribe(res -> {
+     * });
      * </pre>
      * 
      * </blockquote>
@@ -115,7 +116,8 @@ public class WebSocketClient {
      * WebSocketClient client = new WebSocketClient();
      * MyStompSessionHandler handler = new MyStompSessionHandler();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync("/topic", handler);
-     * connectionSubject.subscribe(res -> {});
+     * connectionSubject.subscribe(res -> {
+     * });
      * </pre>
      * 
      * </blockquote>
@@ -140,7 +142,8 @@ public class WebSocketClient {
      * WebSocketClient client = new WebSocketClient();
      * MyStompSessionHandler handler = new MyStompSessionHandler();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync("/topic", handler);
-     * connectionSubject.subscribe(res -> {});
+     * connectionSubject.subscribe(res -> {
+     * });
      * </pre>
      * 
      * </blockquote>
@@ -165,7 +168,8 @@ public class WebSocketClient {
      * <pre>
      * WebSocketClient client = new WebSocketClient();
      * BehaviorSubject<Boolean> connectionSubject = client.connectAsync();
-     * connectionSubject.subscribe(res -> {});
+     * connectionSubject.subscribe(res -> {
+     * });
      * </pre>
      * 
      * </blockquote>
@@ -241,19 +245,16 @@ public class WebSocketClient {
             try {
                 this.session = stompClient.connect(this.url, this.handler).get();
                 break;
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 LOGGER.info("Could not establish connection. Reconnecting in {} seconds...", RECONNECT_DELAY / 1000);
             }
 
             try {
                 Thread.sleep(RECONNECT_DELAY);
-            }
-            catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 LOGGER.info("Could not trigger thread to sleep.");
             }
-        }
-        while(this.session == null || !this.session.isConnected());
+        } while (this.session == null || !this.session.isConnected());
 
         LOGGER.info("Connection established with session id: '{}'", session.getSessionId());
     }
@@ -267,11 +268,10 @@ public class WebSocketClient {
     public BehaviorSubject<StompSession> reconnect() {
         LOGGER.warn("Attempting reconnect...");
 
-        if(this.session != null && !this.session.isConnected()) {
-            if(this.isAsync) {
+        if (this.session != null && !this.session.isConnected()) {
+            if (this.isAsync) {
                 return this.connectAsync();
-            }
-            else {
+            } else {
                 this.connect();
                 this.onDisconnect();
                 return BehaviorSubject.create(this.session);
@@ -291,7 +291,8 @@ public class WebSocketClient {
      * WebSocketClient client = new WebSocketClient();
      * client.connect("/api/websocket");
      * BehaviorSubject<CustomClass> listenerSubject = client.listen("/topic", CustomClass.class);
-     * listenerSubject.subscribe(res -> {});
+     * listenerSubject.subscribe(res -> {
+     * });
      * </pre>
      * 
      * </blockquote>
@@ -315,16 +316,15 @@ public class WebSocketClient {
      * @return {@link BehaviorSubject} of the data.
      */
     public BehaviorSubject<Void> onDisconnect() {
-        if(this.isAsync) {
+        if (this.isAsync) {
             this.DISCONNECT_SUBJECT = BehaviorSubject.create();
         }
 
         new Thread(() -> {
-            while(this.session.isConnected()) {
+            while (this.session.isConnected()) {
                 try {
                     Thread.sleep(1000);
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     LOGGER.info("Could not trigger thread to sleep.");
                 }
             }
@@ -360,18 +360,19 @@ public class WebSocketClient {
     private void initClient() {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        stompClient.setDefaultHeartbeat(new long[] {20000, 20000});
+        stompClient.setDefaultHeartbeat(new long[] { 20000, 20000 });
         stompClient.setTaskScheduler(taskScheduler());
     }
 
     /**
-     * Creates a default task scheduler for setting a heartbeat with the server
+     * Creates a default task scheduler for setting a heartbeat between the
+     * server and the client.
      * 
-     * @return {@link ThreadPoolTaskScheduler}
+     * @return {@link ThreadPoolTaskScheduler} with the set pool size.
      */
     private TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
-        ts.setPoolSize(3);
+        ts.setPoolSize(10);
         ts.afterPropertiesSet();
         return ts;
     }
