@@ -9,7 +9,7 @@ import hydro.pi.bridge.susbcription.domain.NotificationType;
  * @author Sam Butler
  * @since March 24, 2022
  */
-public class UserNotification implements Notification {
+public class UserNotification extends Notification {
     private int userId;
 
     private String name;
@@ -31,7 +31,7 @@ public class UserNotification implements Notification {
     }
 
     @Override
-    public NotificationType getType() {
+    public NotificationType getBodyType() {
         return NotificationType.USER;
     }
 }

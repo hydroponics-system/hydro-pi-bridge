@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import hydro.pi.bridge.mapper.HydroMapper;
 import rx.subjects.BehaviorSubject;
 
 /**
@@ -34,7 +35,7 @@ public class SocketFrameHandler<T> implements StompFrameHandler {
     public SocketFrameHandler(Class<T> clazz, BehaviorSubject<T> subject) {
         this.clazz = clazz;
         this.subject = subject;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = HydroMapper.get();
     }
 
     @Override
@@ -47,5 +48,4 @@ public class SocketFrameHandler<T> implements StompFrameHandler {
         T data = this.objectMapper.convertValue(payload, this.clazz);
         this.subject.onNext(data);
     }
-
 }

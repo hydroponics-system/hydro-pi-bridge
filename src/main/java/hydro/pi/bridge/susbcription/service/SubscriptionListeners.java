@@ -16,6 +16,7 @@ import hydro.pi.bridge.susbcription.listeners.Listener;
  * @author Sam Butler
  * @since Septemeber 2, 2022
  */
+@SuppressWarnings("all")
 public class SubscriptionListeners {
 
     private List<Listener<?>> listeners;

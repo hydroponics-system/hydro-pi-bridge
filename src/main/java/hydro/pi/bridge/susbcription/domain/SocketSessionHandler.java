@@ -28,7 +28,9 @@ public class SocketSessionHandler implements StompSessionHandler {
 
     @Override
     public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload,
-            Throwable exception) {}
+            Throwable exception) {
+        System.out.println(exception);
+    }
 
     @Override
     public void handleTransportError(StompSession session, Throwable exception) {}

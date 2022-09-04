@@ -10,6 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import hydro.pi.bridge.mapper.HydroMapper;
 import hydro.pi.bridge.susbcription.domain.SocketFrameHandler;
 import hydro.pi.bridge.susbcription.domain.SocketSessionHandler;
 import rx.subjects.BehaviorSubject;
@@ -360,8 +361,10 @@ public class SubscriptionClient {
      * Initializes the stomp client for the service.
      */
     private void initClient() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setObjectMapper(HydroMapper.get());
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        stompClient.setMessageConverter(converter);
         stompClient.setDefaultHeartbeat(new long[] {20000, 20000});
         stompClient.setTaskScheduler(taskScheduler());
     }

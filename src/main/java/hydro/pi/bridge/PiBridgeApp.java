@@ -12,7 +12,7 @@ import hydro.pi.bridge.susbcription.service.SubscriptionListeners;
  * @since September 2, 2022
  */
 public class PiBridgeApp {
-    private static final String url = "ws://localhost:8000/subscription/socket?eyJhbGciOiJIUzUxMiJ9.eyJ3ZWJSb2xlIjoiVVNFUiIsImZpcnN0TmFtZSI6IlNhbXVlbCIsImxhc3ROYW1lIjoiQnV0bGVyIiwicGFzc3dvcmRSZXNldCI6ZmFsc2UsImVudiI6IkxPQ0FMIiwiZXhwIjoxNjYyMjI2Mzk2LCJ1c2VySWQiOjEsImlhdCI6MTY2MjIwODM5NiwiZW1haWwiOiJzYW1idXRsZXIxMDE3QGljbG91ZC5jb20iLCJqd3RUeXBlIjoiV0VCIn0.U2lWvxLeuw3JSctvo9vBjiIgD3_0pgbWOxR92dhOssXd6_y38ZpkuDRJjl5Iey9rIt_qBKQF-_Jgd0KcCVjk9g";
+    private static final String url = "ws://localhost:8000/subscription/socket?eyJhbGciOiJIUzUxMiJ9.eyJ3ZWJSb2xlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJTYW11ZWwiLCJsYXN0TmFtZSI6IkJ1dGxlciIsInBhc3N3b3JkUmVzZXQiOmZhbHNlLCJlbnYiOiJMT0NBTCIsImV4cCI6MTY2MjI3MjE2NSwidXNlcklkIjoxLCJpYXQiOjE2NjIyNTQxNjUsImVtYWlsIjoic2FtYnV0bGVyMTAxN0BpY2xvdWQuY29tIiwiand0VHlwZSI6IldFQiJ9.peZm8Kn3G__gEAy6X0sgTtGiPXOc8OUD2ksB0jYu4bu-JDVpdTawncbRGKjZaTFAx0r6iCzDLReeoCQOQVo3Qg";
 
     public static void main(String[] args) {
         LoggerConfig.init();

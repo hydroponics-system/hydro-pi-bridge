@@ -1,7 +1,8 @@
 package hydro.pi.bridge.susbcription.domain;
 
 /**
- * NotificationBodyType contains all known {@link Notification} declerations.
+ * NotificationBodyType contains all known {@link NotificationBodyType}
+ * declerations.
  *
  * @author Sam Butler
  * @since March 24, 2022
