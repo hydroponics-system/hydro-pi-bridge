@@ -1,9 +1,12 @@
 package hydro.pi.bridge.api.service;
 
+import java.util.HashMap;
+
 import hydro.pi.bridge.api.ApiClient;
 import hydro.pi.bridge.api.domain.AuthenticationRequest;
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
+import hydro.pi.bridge.common.file.FileReader;
 
 /**
  * System Authentication class for managing a systems authentication staus for
@@ -13,16 +16,32 @@ import hydro.pi.bridge.api.domain.UserAuthToken;
  * @since September 5, 2022
  */
 public class SystemAuthenticationManager {
+    private static final String USERNAME_KEY = "username";
+    private static final String PASSWORD_KEY = "password";
 
     public SystemAuthToken systemAuthentication() {
         return null;
     }
 
+    /**
+     * Simple user authentication on the system. Used when creating or resetting a
+     * new system.
+     * 
+     * @return The {@link UserAuthToken} of the use.
+     * @throws Exception If the user can not be authenticated.
+     */
     public UserAuthToken userAuthentication() throws Exception {
         ApiClient client = new ApiClient();
+        return client.post("/api/authenticate", buildUserAuthRequest(), UserAuthToken.class);
+    }
 
-        return client.post("/api/authenticate",
-                           new AuthenticationRequest("sambutler1017@icloud.com", "78e05bf74fad284798a195ec2ff3ae6D!"),
-                           UserAuthToken.class);
+    /**
+     * Method for building a user request object based on the set local settings.
+     * 
+     * @return The authentication request object.
+     */
+    private AuthenticationRequest buildUserAuthRequest() {
+        HashMap<String, String> localMap = FileReader.readLocalEnvironment();
+        return new AuthenticationRequest(localMap.get(USERNAME_KEY), localMap.get(PASSWORD_KEY));
     }
 }

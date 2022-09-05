@@ -38,7 +38,8 @@ public class PiBridgeApp {
      * Abstract method to trigger a run forever application.
      */
     private static void runForever() {
-        while(true) {}
+        while (true) {
+        }
     }
 
     private static String authenticate() throws Exception {

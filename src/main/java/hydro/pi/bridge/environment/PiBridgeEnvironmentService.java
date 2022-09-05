@@ -20,7 +20,7 @@ public class PiBridgeEnvironmentService {
      * @param args The arguments to check and validate.
      */
     public static void setActiveEnvironment(String[] args) {
-        PiEnvironment env = args.length > 1 ? PiEnvironment.get(args[0]) : PiEnvironment.LOCAL;
+        PiEnvironment env = args.length >= 1 ? PiEnvironment.get(args[0]) : PiEnvironment.LOCAL;
 
         LOGGER.info("Active Pi Bridge Environment: {}", env);
         System.setProperty(ACTIVE_ENVIRONMENT, env.tag());
