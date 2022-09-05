@@ -1,4 +1,6 @@
-package hydro.pi.bridge.mapper;
+package hydro.pi.bridge.common.mapper;
+
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -26,5 +28,16 @@ public class HydroMapper {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return mapper;
+    }
+
+    /**
+     * Gets a message mapping converter with the defined object mapper.
+     * 
+     * @return The message converter.
+     */
+    public static MappingJackson2HttpMessageConverter getConverter() {
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(get());
+        return converter;
     }
 }

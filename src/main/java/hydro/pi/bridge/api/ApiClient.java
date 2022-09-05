@@ -1,20 +1,15 @@
 package hydro.pi.bridge.api;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublisher;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpRequest.Builder;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
-import rx.subjects.BehaviorSubject;
+import hydro.pi.bridge.common.mapper.HydroMapper;
+import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
 
 /**
  * Api client class for consuming restful endpoints.
@@ -23,24 +18,13 @@ import rx.subjects.BehaviorSubject;
  * @since April 8, 2022
  */
 public class ApiClient {
-    private final String BASE_URL;
 
-    private final ObjectMapper objectMapper;
-
-    private final HttpClient httpClient;
+    private final RestTemplate restTemplate;
 
     private String AUTH;
 
     public ApiClient() {
-        this.BASE_URL = "";
-        this.objectMapper = new ObjectMapper();
-        this.httpClient = HttpClient.newHttpClient();
-    }
-
-    public ApiClient(String url) {
-        this.BASE_URL = url;
-        this.objectMapper = new ObjectMapper();
-        this.httpClient = HttpClient.newHttpClient();
+        this.restTemplate = getRestTemplate();
     }
 
     /**
@@ -61,40 +45,7 @@ public class ApiClient {
      * @throws Exception
      */
     public <T> T get(String api, Class<T> clazz) throws Exception {
-        var request = getBuilder(api).GET().build();
-        return send(request, clazz);
-    }
-
-    /**
-     * This will do a post on the passed in API. It will then cast the results to
-     * the passed in object.
-     * 
-     * @param api  The endpoint to hit.
-     * @param body The body to pass with the post request.
-     * @return The {@link BehaviorSubject} of the response.
-     * @throws InterruptedException
-     * @throws IOException
-     */
-    public HttpResponse<String> post(String api, Map<String, Object> body) throws Exception {
-        var request = getBuilder(api).POST(paramFormatter(body)).build();
-        return send(request);
-    }
-
-    /**
-     * This will do a post on the passed in API. It will then cast the results to
-     * the passed in object.
-     * 
-     * @param <T>   The object to cast the result as.
-     * @param api   The endpoint to hit.
-     * @param body  The body to pass with the post request.
-     * @param clazz The class to cast it too.
-     * @return The passed in object class.
-     * @throws InterruptedException
-     * @throws IOException
-     */
-    public <T> T post(String api, Map<String, Object> body, Class<T> clazz) throws Exception {
-        var request = getBuilder(api).POST(paramFormatter(body)).build();
-        return send(request, clazz);
+        return exchange(api, HttpMethod.GET, buildRequestEntity(null, Void.class), clazz).getBody();
     }
 
     /**
@@ -108,174 +59,81 @@ public class ApiClient {
      * @throws InterruptedException
      * @throws IOException
      */
-    public <T> HttpResponse<String> post(String api, T body) throws Exception {
-        String jsonData = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(body);
-        var request = getBuilder(api).POST(BodyPublishers.ofString(jsonData)).build();
-        return send(request);
+    public <T> Object post(String api, T request) throws Exception {
+        return post(api, request, Object.class);
     }
 
     /**
      * This will do a post on the passed in API. It will then cast the results to
      * the passed in object.
      * 
-     * @param <T>   The object to cast the result as.
-     * @param api   The endpoint to hit.
-     * @param body  The body to pass with the post request.
-     * @param clazz The class to cast it too.
+     * @param <T>     The object to cast the result as.
+     * @param api     The endpoint to hit.
+     * @param request The body to pass with the post request.
+     * @param clazz   The class to cast it too.
      * @return The passed in object class.
      * @throws InterruptedException
      * @throws IOException
      */
-    public <T, R> R post(String api, T body, Class<R> clazz) throws Exception {
-        String jsonData = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(body);
-        var request = getBuilder(api).POST(BodyPublishers.ofString(jsonData)).build();
-        return send(request, clazz);
+    public <T> T post(String api, Object request, Class<T> clazz) throws Exception {
+        HttpEntity<Object> requestEntity = new HttpEntity<Object>(request);
+        return exchange(api, HttpMethod.POST, requestEntity, clazz).getBody();
     }
 
     /**
-     * This will do a get on the passed in API. It will then cast the results to the
-     * passed in object. It will wrap the data returned in a subject to watch when
-     * the API returns.
+     * Build out the absolute path for the api.
      * 
-     * @param api   The endpoint to hit.
-     * @param clazz The class to cast it too.
-     * @throws Exception
+     * @param api The api to build.
+     * @return Completed url with the attached api.
      */
-    public <T> BehaviorSubject<T> getAsync(String api, Class<T> clazz) throws Exception {
-        var request = getBuilder(api).GET().build();
-        return sendAsync(request, clazz);
+    private String buildUrl(String api) {
+        return String.format("%s%s", PiBridgeEnvironmentService.active().api(), api);
     }
 
     /**
-     * This will do a post on the passed in API. It will then cast the results to
-     * the passed in object. It will wrap the data returned in a subject to watch
-     * when the API returns.
+     * Make an exchange call through the rest template.
      * 
-     * @param api  The endpoint to hit.
-     * @param body The body to pass with the post request.
-     * @return The {@link BehaviorSubject} of the response.
-     * @throws InterruptedException
-     * @throws IOException
+     * @param <T>    Typed parameter of the response type.
+     * @param api    The api to hit.
+     * @param method The method to perform on the endpoint.
+     * @param entity The entity instance to pass.
+     * @param clazz  The class to return the response as.
+     * @return Response entity of the returned data.
      */
-    public BehaviorSubject<HttpResponse<String>> postAsync(String api, Map<String, Object> body) throws Exception {
-        var request = getBuilder(api).POST(paramFormatter(body)).build();
-        return sendAsync(request);
+    protected <T> ResponseEntity<T> exchange(String api, HttpMethod method, HttpEntity<?> entity, Class<T> clazz) {
+        return restTemplate.exchange(buildUrl(api), method, entity, clazz);
     }
 
     /**
-     * This will do a post on the passed in API. It will then cast the results to
-     * the passed in object. It will wrap the data returned in a subject to watch
-     * when the API returns.
+     * Builds out the request entity to be sent with the request. It will by default
+     * set the authorization and content type on the headers to be sent.
      * 
-     * @param <T>   The object to cast the result as.
-     * @param api   The endpoint to hit.
-     * @param body  The body to pass with the post request.
-     * @param clazz The class to cast it too.
-     * @return The passed in object class.
-     * @throws InterruptedException
-     * @throws IOException
+     * @param <T>     The generic object type to return.
+     * @param request The request to put on the headers.
+     * @param clazz   The class to cast the object too
+     * @return A {@link HttpEntity} object.
      */
-    public <T> BehaviorSubject<T> postAsync(String api, Map<String, Object> body, Class<T> clazz) throws Exception {
-        var request = getBuilder(api).POST(paramFormatter(body)).build();
-        return sendAsync(request, clazz);
-    }
+    private <T> HttpEntity<T> buildRequestEntity(T request, Class<T> clazz) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer: " + this.AUTH);
+        headers.set("Content-Type", "application/json");
 
-    /**
-     * This will perform the api call to send the request. It will than consume the
-     * api and get the response. It will return the {@link HttpResponse} object that
-     * was returned.
-     * 
-     * @param req The request to send.
-     * @return {@link HttpResponse} data object.
-     * @throws Exception If the request could not be sent.
-     */
-    public HttpResponse<String> send(HttpRequest req) throws Exception {
-        return httpClient.send(req, BodyHandlers.ofString());
-    }
-
-    /**
-     * This will perform the api call to send the request. It will than consume the
-     * api and get the response. Once the response is returned it will then cast the
-     * response to the passed in class data type.
-     * 
-     * @param <T>   The object to cast the result as.
-     * @param req   The request to send.
-     * @param clazz The class object.
-     * @return The generic object of the data.
-     * @throws Exception If the request could not be sent.
-     */
-    public <T> T send(HttpRequest req, Class<T> clazz) throws Exception {
-        return objectMapper.readValue(send(req).body(), clazz);
-    }
-
-    /**
-     * This will perform the api call to send the request. It will than consume the
-     * api and get the response. It will return the {@link HttpResponse} object that
-     * was returned in a subject to listen too.
-     * 
-     * @param req The request to send.
-     * @return {@link HttpResponse} data object.
-     * @throws Exception If the request could not be sent.
-     */
-    public BehaviorSubject<HttpResponse<String>> sendAsync(HttpRequest req) throws Exception {
-        BehaviorSubject<HttpResponse<String>> subject = BehaviorSubject.create();
-        httpClient.sendAsync(req, BodyHandlers.ofString()).whenComplete((response, error) -> subject.onNext(response));
-        return subject;
-    }
-
-    /**
-     * This will perform the api call to send the request. It will than consume the
-     * api and get the response. Once the response is returned it will then cast the
-     * response to the passed in class data type in a subject to listen too.
-     * 
-     * @param <T>   The object to cast the result as.
-     * @param req   The request to send.
-     * @param clazz The class object.
-     * @return {@link BehaviorSubject} data object.
-     * @throws Exception If the request could not be sent.
-     */
-    public <T> BehaviorSubject<T> sendAsync(HttpRequest req, Class<T> clazz) throws Exception {
-        BehaviorSubject<T> subject = BehaviorSubject.create();
-        httpClient.sendAsync(req, BodyHandlers.ofString()).whenComplete((response, error) -> {
-            if(response != null) {
-                try {
-                    subject.onNext(objectMapper.readValue(response.body(), clazz));
-                }
-                catch(Exception e) {
-                    subject.onNext(null);
-                }
-            }
-            else {
-                subject.onNext(null);
-            }
-        });
-        return subject;
-    }
-
-    /**
-     * Get the default base builder object for making a request to the API;
-     * 
-     * @param api The api to be hit.
-     * @return The builder instance.
-     */
-    private Builder getBuilder(String api) {
-        Builder httpBuilder = HttpRequest.newBuilder(URI.create(BASE_URL + api))
-                .header("Content-Type", "application/json").header("accept", "application/json");
-        if(AUTH != null && !"".equals(this.AUTH.trim())) {
-            httpBuilder.header("Authorization", this.AUTH);
+        if(request == null) {
+            return new HttpEntity<T>(headers);
         }
-        return httpBuilder;
+        else {
+            return new HttpEntity<T>(request, headers);
+        }
     }
 
     /**
-     * Format params into a body publisher.
+     * Builds a rest template with the correct mapper to use.
      * 
-     * @param data The body to be formatted
-     * @return {@link BodyPublisher}
-     * @throws JsonProcessingException
+     * @return The rest template instance.
      */
-    private BodyPublisher paramFormatter(Map<String, Object> data) throws JsonProcessingException {
-        String requestBody = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        return BodyPublishers.ofString(requestBody);
+    private RestTemplate getRestTemplate() {
+        RestTemplate rest = new RestTemplate();
+        rest.getMessageConverters().add(0, HydroMapper.getConverter());
+        return rest;
     }
 }

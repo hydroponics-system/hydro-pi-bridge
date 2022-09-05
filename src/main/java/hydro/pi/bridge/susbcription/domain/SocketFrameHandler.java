@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import hydro.pi.bridge.mapper.HydroMapper;
+import hydro.pi.bridge.common.mapper.HydroMapper;
 import rx.subjects.BehaviorSubject;
 
 /**

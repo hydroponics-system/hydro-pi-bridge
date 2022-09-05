@@ -1,4 +1,4 @@
-package hydro.pi.bridge.logger;
+package hydro.pi.bridge.common.logger;
 
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +14,7 @@ import ch.qos.logback.classic.Logger;
 public class LoggerConfig {
 
     /**
-     * Default init method for the logger. It will set
-     * the logger to INFO level.
+     * Default init method for the logger. It will set the logger to INFO level.
      */
     public static void init() {
         init(Level.INFO);

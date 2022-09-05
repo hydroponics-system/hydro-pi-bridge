@@ -1,7 +1,9 @@
 package hydro.pi.bridge;
 
+import hydro.pi.bridge.api.domain.UserAuthToken;
+import hydro.pi.bridge.api.service.SystemAuthenticationManager;
+import hydro.pi.bridge.common.logger.LoggerConfig;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
-import hydro.pi.bridge.logger.LoggerConfig;
 import hydro.pi.bridge.susbcription.client.SubscriptionClient;
 import hydro.pi.bridge.susbcription.listeners.GeneralNotficationListener;
 import hydro.pi.bridge.susbcription.service.SubscriptionListeners;
@@ -13,9 +15,8 @@ import hydro.pi.bridge.susbcription.service.SubscriptionListeners;
  * @since September 2, 2022
  */
 public class PiBridgeApp {
-    private static final String url = "ws://localhost:8000/subscription/socket?eyJhbGciOiJIUzUxMiJ9.eyJ3ZWJSb2xlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJTYW11ZWwiLCJsYXN0TmFtZSI6IkJ1dGxlciIsInBhc3N3b3JkUmVzZXQiOmZhbHNlLCJlbnYiOiJMT0NBTCIsImV4cCI6MTY2MjI3MjE2NSwidXNlcklkIjoxLCJpYXQiOjE2NjIyNTQxNjUsImVtYWlsIjoic2FtYnV0bGVyMTAxN0BpY2xvdWQuY29tIiwiand0VHlwZSI6IldFQiJ9.peZm8Kn3G__gEAy6X0sgTtGiPXOc8OUD2ksB0jYu4bu-JDVpdTawncbRGKjZaTFAx0r6iCzDLReeoCQOQVo3Qg";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         start(args);
         runForever();
     }
@@ -25,24 +26,30 @@ public class PiBridgeApp {
      * begings.
      * 
      * @param args The arguements to evaluate.
+     * @throws Exception
      */
-    private static void start(String[] args) {
+    private static void start(String[] args) throws Exception {
         PiBridgeEnvironmentService.setActiveEnvironment(args);
         LoggerConfig.init();
-        startSubscription();
+        startSubscription(authenticate());
     }
 
     /**
      * Abstract method to trigger a run forever application.
      */
     private static void runForever() {
-        while (true) {
-        }
+        while(true) {}
     }
 
-    private static void startSubscription() {
+    private static String authenticate() throws Exception {
+        SystemAuthenticationManager systemAuth = new SystemAuthenticationManager();
+        UserAuthToken user = systemAuth.userAuthentication();
+        return String.format("%s?%s", PiBridgeEnvironmentService.active().socket(), user.getToken());
+    }
+
+    private static void startSubscription(String wsUrl) {
         SubscriptionClient client = new SubscriptionClient();
-        client.connectAsync(url).subscribe(res -> addListeners(client));
+        client.connectAsync(wsUrl).subscribe(res -> addListeners(client));
     }
 
     private static void addListeners(SubscriptionClient client) {

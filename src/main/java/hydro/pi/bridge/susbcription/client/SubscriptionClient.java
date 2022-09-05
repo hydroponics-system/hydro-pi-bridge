@@ -10,7 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
-import hydro.pi.bridge.mapper.HydroMapper;
+import hydro.pi.bridge.common.mapper.HydroMapper;
 import hydro.pi.bridge.susbcription.domain.SocketFrameHandler;
 import hydro.pi.bridge.susbcription.domain.SocketSessionHandler;
 import rx.subjects.BehaviorSubject;
