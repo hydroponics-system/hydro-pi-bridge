@@ -1,4 +1,4 @@
-package hydro.pi.bridge.api.service;
+package hydro.pi.bridge.system.service;
 
 import java.util.HashMap;
 
@@ -15,7 +15,7 @@ import hydro.pi.bridge.common.file.FileReader;
  * @author Sam Butler
  * @since September 5, 2022
  */
-public class SystemAuthenticationManager {
+public class SystemAuthenticationService {
     private static final String USERNAME_KEY = "username";
     private static final String PASSWORD_KEY = "password";
 
