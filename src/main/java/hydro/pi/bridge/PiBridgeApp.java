@@ -16,21 +16,11 @@ public class PiBridgeApp {
     private static final HydroSystemClient hydroSystemClient = new HydroSystemClient();
 
     public static void main(String[] args) throws Exception {
-        init(args);
-        runForever();
-    }
-
-    /**
-     * Method for showing methods that need to initalize as soon as the application
-     * begins.
-     * 
-     * @param args The arguements to evaluate.
-     * @throws Exception If an error occurred starting the system.
-     */
-    private static void init(String[] args) throws Exception {
         PiBridgeEnvironmentService.setActiveEnvironment(args);
         LoggerConfig.configure(Level.INFO);
         hydroSystemClient.start();
+
+        runForever();
     }
 
     /**
