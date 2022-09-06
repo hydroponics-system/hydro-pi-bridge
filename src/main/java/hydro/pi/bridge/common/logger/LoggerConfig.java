@@ -14,7 +14,7 @@ import ch.qos.logback.classic.Logger;
 public class LoggerConfig {
 
     /**
-     * Sets the logger level to the passed in leve.
+     * Sets global logger level to the passed in level.
      * 
      * @param l The log level to set.
      */

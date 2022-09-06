@@ -1,5 +1,8 @@
 package hydro.pi.bridge.system.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
@@ -15,6 +18,8 @@ import hydro.pi.bridge.system.service.SystemAuthenticationService;
  * @since September 5, 2022
  */
 public class HydroSystemClient {
+    private final Logger LOGGER = LoggerFactory.getLogger(HydroSystemClient.class);
+
     private SubscriptionClient subscriptionClient;
 
     private SystemAuthenticationService systemAuthenticationService;
@@ -32,11 +37,16 @@ public class HydroSystemClient {
      * Start the process for the hydroponic System. This will register a system if
      * it is new or authenticate if the system is already configured. It will also
      * add the defined listeners for the system subscription.
-     * @throws Exception If the user can not be authenticated.
      */
-    public void start() throws Exception {
-        SystemAuthToken systemAuth = systemAuthenticationService.systemAuthentication();
-        startSystemSubscription(buildSocketUrl(systemAuth.getToken()));
+    public void start() {
+        try {
+            SystemAuthToken systemAuth = systemAuthenticationService.systemAuthentication();
+            startSystemSubscription(buildSocketUrl(systemAuth.getToken()));
+        }
+        catch(Exception e) {
+            LOGGER.error("Could not start Hydroponics System!");
+            System.exit(1);
+        }
     }
 
     /**

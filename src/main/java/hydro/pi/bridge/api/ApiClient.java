@@ -133,7 +133,7 @@ public class ApiClient {
      */
     private RestTemplate getRestTemplate() {
         RestTemplate rest = new RestTemplate();
-        rest.getMessageConverters().add(0, HydroMapper.getConverter());
+        rest.getMessageConverters().add(0, HydroMapper.getHttpConverter());
         return rest;
     }
 }

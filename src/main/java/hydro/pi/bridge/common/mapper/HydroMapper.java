@@ -1,6 +1,7 @@
 package hydro.pi.bridge.common.mapper;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -42,12 +43,23 @@ public class HydroMapper {
     }
 
     /**
+     * Gets a http mapping converter with the defined object mapper.
+     * 
+     * @return The message converter.
+     */
+    public static MappingJackson2HttpMessageConverter getHttpConverter() {
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(get());
+        return converter;
+    }
+
+    /**
      * Gets a message mapping converter with the defined object mapper.
      * 
      * @return The message converter.
      */
-    public static MappingJackson2HttpMessageConverter getConverter() {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+    public static MappingJackson2MessageConverter getMessageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setObjectMapper(get());
         return converter;
     }

@@ -2,7 +2,6 @@ package hydro.pi.bridge.susbcription.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.scheduling.TaskScheduler;
@@ -361,10 +360,8 @@ public class SubscriptionClient {
      * Initializes the stomp client for the service.
      */
     private void initClient() {
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(HydroMapper.get());
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(converter);
+        stompClient.setMessageConverter(HydroMapper.getMessageConverter());
         stompClient.setDefaultHeartbeat(new long[] {20000, 20000});
         stompClient.setTaskScheduler(taskScheduler());
     }

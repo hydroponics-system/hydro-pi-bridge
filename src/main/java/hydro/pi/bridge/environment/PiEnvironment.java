@@ -12,11 +12,11 @@ import org.springframework.util.Assert;
  * @since September 4, 2022
  */
 public enum PiEnvironment {
-    PRODUCTION("--prod", "wss://hydro-api-microservice.herokuapp.com/subscription/socket",
+    PRODUCTION("--prod" , "wss://hydro-api-microservice.herokuapp.com/subscription/socket" ,
             "https://hydro-api-microservice.herokuapp.com"),
-    TEST("--test", "wss://hydro-api-microservice.herokuapp.com/subscription/socket",
+    TEST("--test" , "wss://hydro-api-microservice.herokuapp.com/subscription/socket" ,
             "https://hydro-api-microservice.herokuapp.com"),
-    LOCAL("--local", "ws://localhost:8000/subscription/socket", "http://localhost:8000");
+    LOCAL("--local" , "ws://localhost:8000/subscription/socket" , "http://localhost:8000");
 
     private String tag;
     private String socket;
@@ -49,7 +49,7 @@ public enum PiEnvironment {
      * @return {@link PiEnvironment} Object
      */
     public static PiEnvironment get(String text) {
-        Assert.notNull(text, "Tag can not be null");
+        Assert.notNull(text, "Passed in Text can not be null");
         return Arrays.asList(PiEnvironment.values()).stream().filter(e -> e.tag().equals(text.toLowerCase())).findAny()
                 .orElse(LOCAL);
     }
