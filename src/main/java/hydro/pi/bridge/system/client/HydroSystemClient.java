@@ -35,8 +35,8 @@ public class HydroSystemClient {
      * @throws Exception If the user can not be authenticated.
      */
     public void start() throws Exception {
-        UserAuthToken userAuth = systemAuthenticationService.userAuthentication();
-        startSystemSubscription(buildSocketUrl(userAuth.getToken()));
+        SystemAuthToken systemAuth = systemAuthenticationService.systemAuthentication();
+        startSystemSubscription(buildSocketUrl(systemAuth.getToken()));
     }
 
     /**

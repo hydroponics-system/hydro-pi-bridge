@@ -7,6 +7,7 @@ import hydro.pi.bridge.api.domain.AuthenticationRequest;
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.common.file.FileReader;
+import hydro.pi.bridge.system.client.domain.SystemAuthenticationRequest;
 
 /**
  * System Authentication class for managing a systems authentication staus for
@@ -19,8 +20,9 @@ public class SystemAuthenticationService {
     private static final String USERNAME_KEY = "username";
     private static final String PASSWORD_KEY = "password";
 
-    public SystemAuthToken systemAuthentication() {
-        return null;
+    public SystemAuthToken systemAuthentication() throws Exception {
+        ApiClient client = new ApiClient();
+        return client.post("/api/system-app/authenticate", buildSystemAuthRequest(), SystemAuthToken.class);
     }
 
     /**
@@ -43,5 +45,9 @@ public class SystemAuthenticationService {
     private AuthenticationRequest buildUserAuthRequest() {
         HashMap<String, String> localMap = FileReader.readLocalEnvironment();
         return new AuthenticationRequest(localMap.get(USERNAME_KEY), localMap.get(PASSWORD_KEY));
+    }
+
+    private SystemAuthenticationRequest buildSystemAuthRequest() {
+        return new SystemAuthenticationRequest("5326c0e3-535c-3973-b4a3-8dd17da88a63", "password!");
     }
 }
