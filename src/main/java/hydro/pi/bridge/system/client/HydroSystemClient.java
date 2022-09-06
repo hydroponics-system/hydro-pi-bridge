@@ -51,7 +51,7 @@ public class HydroSystemClient {
 
     /**
      * If the system is not registered yet this method will be used to set that up.
-     * It will use the users credentials to register them system with the API.
+     * It will use the users credentials to register the system with the System API.
      */
     public void registerSystem() {
         // TODO: Add Funtionality to register a system.

@@ -3,11 +3,11 @@ package hydro.pi.bridge.system.service;
 import java.util.HashMap;
 
 import hydro.pi.bridge.api.ApiClient;
-import hydro.pi.bridge.api.domain.AuthenticationRequest;
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.common.file.FileReader;
 import hydro.pi.bridge.system.client.domain.SystemAuthenticationRequest;
+import hydro.pi.bridge.system.client.domain.UserAuthenticationRequest;
 
 /**
  * System Authentication class for managing a systems authentication staus for
@@ -42,11 +42,18 @@ public class SystemAuthenticationService {
      * 
      * @return The authentication request object.
      */
-    private AuthenticationRequest buildUserAuthRequest() {
+    private UserAuthenticationRequest buildUserAuthRequest() {
         HashMap<String, String> localMap = FileReader.readLocalEnvironment();
-        return new AuthenticationRequest(localMap.get(USERNAME_KEY), localMap.get(PASSWORD_KEY));
+        return new UserAuthenticationRequest(localMap.get(USERNAME_KEY), localMap.get(PASSWORD_KEY));
     }
 
+    /**
+     * Helper method for building a system authentication request.
+     * 
+     * TODO: Update to pull UUID and password for locally encrypted file.
+     * 
+     * @return System Authentication Request object with the uuid and password.
+     */
     private SystemAuthenticationRequest buildSystemAuthRequest() {
         return new SystemAuthenticationRequest("5326c0e3-535c-3973-b4a3-8dd17da88a63", "password!");
     }

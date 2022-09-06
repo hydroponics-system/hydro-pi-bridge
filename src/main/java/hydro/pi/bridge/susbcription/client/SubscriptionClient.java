@@ -48,7 +48,16 @@ public class SubscriptionClient {
      * Default empty constructor to initializing the object.
      */
     public SubscriptionClient() {
-        this("",null);
+        this("", null);
+    }
+
+    /**
+     * Constructor that takes in a url to send the socket call too.
+     * 
+     * @param url The url to be used.
+     */
+    public SubscriptionClient(String url) {
+        this(url, null);
     }
 
     /**
@@ -58,16 +67,7 @@ public class SubscriptionClient {
      * @param handler The handler to use for socket connection.
      */
     public <T extends StompSessionHandler> SubscriptionClient(T handler) {
-        this("",handler);
-    }
-
-    /**
-     * Constructor that takes in a url to send the socket call too.
-     * 
-     * @param url The url to be used.
-     */
-    public SubscriptionClient(String url) {
-        this(url,null);
+        this("", handler);
     }
 
     /**
@@ -103,8 +103,7 @@ public class SubscriptionClient {
      * @return {@link BehaviorSubject} of the connection status
      */
     public BehaviorSubject<StompSession> connectAsync(String url) {
-        this.url = url;
-        return connectAsync();
+        return connectAsync(url, null);
     }
 
     /**
@@ -128,8 +127,7 @@ public class SubscriptionClient {
      * @return {@link BehaviorSubject} of the connection status
      */
     public <T extends StompSessionHandler> BehaviorSubject<StompSession> connectAsync(T handler) {
-        this.handler = handler;
-        return connectAsync();
+        return connectAsync("", handler);
     }
 
     /**
@@ -159,6 +157,45 @@ public class SubscriptionClient {
     }
 
     /**
+     * Establish a connection for the given url. The synchronous connect will not
+     * handle reconnections to the server if it disconnects.
+     * 
+     * @param url The url to connect the socket too.
+     * @throws InterruptedException
+     */
+    public void connect(String url) {
+        connect(url, null);
+    }
+
+    /**
+     * Establish a connection with the websocket server. This connect method assumes
+     * that the base socket url is already set. This will keep retrying to reconnect
+     * until the connection can be established. The synchronous connect will not
+     * handle reconnections to the server if it disconnects.
+     * 
+     * @param handler The handler to be used on the socket request.
+     * @throws InterruptedException If the connection could not be established.
+     */
+    public <T extends StompSessionHandler> void connect(T handler) {
+        connect("", handler);
+    }
+
+    /**
+     * Establish a connection for the given url and handler that wants to be used
+     * for the request. The synchronous connect will not handle reconnections to the
+     * server if it disconnects.
+     * 
+     * @param url     The url to connect the socket too.
+     * @param handler The handler to be used on the socket request.
+     * @throws InterruptedException
+     */
+    public <T extends StompSessionHandler> void connect(String url, T handler) {
+        this.url = url;
+        this.handler = handler;
+        connect();
+    }
+
+    /**
      * Async socket connection that will be run on a seperate thread. Once the
      * connection is established it will emit the subject with the new
      * {@link StompSession} of it connected and trigger the change. This will handle
@@ -185,47 +222,6 @@ public class SubscriptionClient {
     }
 
     /**
-     * Establish a connection for the given url. The synchronous connect will not
-     * handle reconnections to the server if it disconnects.
-     * 
-     * @param url The url to connect the socket too.
-     * @throws InterruptedException
-     */
-    public void connect(String url) {
-        this.url = url;
-        connect();
-    }
-
-    /**
-     * Establish a connection with the websocket server. This connect method assumes
-     * that the base socket url is already set. This will keep retrying to reconnect
-     * until the connection can be established. The synchronous connect will not
-     * handle reconnections to the server if it disconnects.
-     * 
-     * @param handler The handler to be used on the socket request.
-     * @throws InterruptedException If the connection could not be established.
-     */
-    public <T extends StompSessionHandler> void connect(T handler) {
-        this.handler = handler;
-        connect();
-    }
-
-    /**
-     * Establish a connection for the given url and handler that wants to be used
-     * for the request. The synchronous connect will not handle reconnections to the
-     * server if it disconnects.
-     * 
-     * @param url     The url to connect the socket too.
-     * @param handler The handler to be used on the socket request.
-     * @throws InterruptedException
-     */
-    public <T extends StompSessionHandler> void connect(String url, T handler) {
-        this.url = url;
-        this.handler = handler;
-        connect();
-    }
-
-    /**
      * Basic connect for creating a connection with the socket. This assumes that
      * the url is already set and the the desired handler is set. If not handler is
      * set it will use the default stomp session handler for the connection. The
@@ -247,13 +243,7 @@ public class SubscriptionClient {
             catch(Exception e) {
                 LOGGER.info("Could not establish connection. Reconnecting in {} seconds...", RECONNECT_DELAY / 1000);
             }
-
-            try {
-                Thread.sleep(RECONNECT_DELAY);
-            }
-            catch(InterruptedException e) {
-                LOGGER.info("Could not trigger thread to sleep.");
-            }
+            threadSleep(RECONNECT_DELAY);
         }
         while(this.session == null || !this.session.isConnected());
 
@@ -323,12 +313,7 @@ public class SubscriptionClient {
 
         new Thread(() -> {
             while(this.session.isConnected()) {
-                try {
-                    Thread.sleep(1000);
-                }
-                catch(Exception e) {
-                    LOGGER.info("Could not trigger thread to sleep.");
-                }
+                threadSleep(1000);
             }
             LOGGER.warn("Socket disconnected from session id '{}'", this.session.getSessionId());
             this.DISCONNECT_SUBJECT.onNext(null);
@@ -354,6 +339,20 @@ public class SubscriptionClient {
      */
     public StompSession getSession() {
         return this.session;
+    }
+
+    /**
+     * Will cause the current thread to sleep for the given amount of milliseconds.
+     * 
+     * @param sleepMilliseconds The amount of milliseconds for the thread to sleep
+     */
+    private void threadSleep(int sleepMilliseconds) {
+        try {
+            Thread.sleep(sleepMilliseconds);
+        }
+        catch(InterruptedException e) {
+            LOGGER.info("Could not trigger thread to sleep.");
+        }
     }
 
     /**

@@ -1,4 +1,4 @@
-package hydro.pi.bridge.api.domain;
+package hydro.pi.bridge.system.client.domain;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  * @author Sam Butler
  * @since August 1, 2020
  */
-public class AuthenticationRequest implements Serializable {
+public class UserAuthenticationRequest implements Serializable {
 
     @Nonnull
     private String email;
@@ -18,9 +18,9 @@ public class AuthenticationRequest implements Serializable {
     @Nonnull
     private String password;
 
-    public AuthenticationRequest() {}
+    public UserAuthenticationRequest() {}
 
-    public AuthenticationRequest(String email, String password) {
+    public UserAuthenticationRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }
