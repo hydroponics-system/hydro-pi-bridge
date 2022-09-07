@@ -3,12 +3,16 @@ package hydro.pi.bridge.system.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
 import hydro.pi.bridge.susbcription.client.SubscriptionClient;
 import hydro.pi.bridge.susbcription.listeners.GeneralNotficationListener;
 import hydro.pi.bridge.susbcription.service.SubscriptionListeners;
+import hydro.pi.bridge.system.auth.SystemJwtHolder;
 import hydro.pi.bridge.system.service.SystemAuthenticationService;
 
 /**
@@ -24,6 +28,8 @@ public class HydroSystemClient {
 
     private SystemAuthenticationService systemAuthenticationService;
 
+    private SystemJwtHolder systemJwtHolder;
+
     /**
      * Default constructor for setting up the instances of the system and
      * subscription client.
@@ -31,20 +37,23 @@ public class HydroSystemClient {
     public HydroSystemClient() {
         this.subscriptionClient = new SubscriptionClient();
         this.systemAuthenticationService = new SystemAuthenticationService();
+        this.systemJwtHolder = new SystemJwtHolder();
     }
 
     /**
      * Start the process for the hydroponic System. This will register a system if
      * it is new or authenticate if the system is already configured. It will also
      * add the defined listeners for the system subscription.
+     * @throws JsonProcessingException
+     * @throws JsonMappingException
      */
-    public void start() {
+    public void start() throws JsonMappingException, JsonProcessingException {
         try {
-            SystemAuthToken systemAuth = systemAuthenticationService.systemAuthentication();
-            startSystemSubscription(buildSocketUrl(systemAuth.getToken()));
+            systemAuthenticationService.authenticateSystem();
+            startSystemSubscription(buildSocketUrl());
         }
         catch(Exception e) {
-            LOGGER.error("Could not start Hydroponics System!");
+            LOGGER.error("Could not start Hydroponics System!\nERROR -> '{}'", e.getMessage());
             System.exit(1);
         }
     }
@@ -64,8 +73,8 @@ public class HydroSystemClient {
      * @param systemToken The system token to be authenticated.
      * @return String of the socket url to connect with.
      */
-    private String buildSocketUrl(String systemToken) {
-        return String.format("%s?%s", PiBridgeEnvironmentService.active().socket(), systemToken);
+    private String buildSocketUrl() {
+        return String.format("%s?%s", PiBridgeEnvironmentService.active().socket(), systemJwtHolder.get().getToken());
     }
 
     /**
