@@ -19,7 +19,6 @@ public class PiBridgeApp {
         PiBridgeEnvironmentService.setActiveEnvironment(args);
         LoggerConfig.configure(Level.INFO);
         hydroSystemClient.start();
-
         runForever();
     }
 

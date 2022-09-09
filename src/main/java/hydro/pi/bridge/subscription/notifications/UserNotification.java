@@ -1,7 +1,7 @@
-package hydro.pi.bridge.susbcription.notifications;
+package hydro.pi.bridge.subscription.notifications;
 
-import hydro.pi.bridge.susbcription.domain.Notification;
-import hydro.pi.bridge.susbcription.domain.NotificationType;
+import hydro.pi.bridge.subscription.domain.Notification;
+import hydro.pi.bridge.subscription.domain.NotificationType;
 
 /**
  * User Subscription Notification

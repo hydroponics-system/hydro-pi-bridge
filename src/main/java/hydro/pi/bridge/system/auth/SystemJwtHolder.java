@@ -42,20 +42,24 @@ public class SystemJwtHolder {
     }
 
     /**
-     * Gets the hydro system from the thread local instance.
+     * Gets the hydro system from the thread local instance. If the pair of the
+     * local instance is null then it will return null.
      * 
      * @return {@link HydroSystem} with the set data.
      */
     public HydroSystem getSystem() {
-        return get().getSystem();
+        SystemPair pair = get();
+        return pair == null ? null : pair.getSystem();
     }
 
     /**
-     * Gets the token from the thread local instance.
+     * Gets the token from the thread local instance. If the pair of the local
+     * instance is null then it will return null.
      * 
      * @return {@link String} of the set token.
      */
     public String getToken() {
-        return get().getToken();
+        SystemPair pair = get();
+        return pair == null ? null : pair.getToken();
     }
 }

@@ -1,13 +1,13 @@
-package hydro.pi.bridge.susbcription.service;
+package hydro.pi.bridge.subscription.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.util.Assert;
 
-import hydro.pi.bridge.susbcription.client.SubscriptionClient;
-import hydro.pi.bridge.susbcription.domain.Notification;
-import hydro.pi.bridge.susbcription.listeners.Listener;
+import hydro.pi.bridge.subscription.client.SubscriptionClient;
+import hydro.pi.bridge.subscription.domain.Notification;
+import hydro.pi.bridge.subscription.listeners.Listener;
 
 /**
  * Subscription Listeners class that will register a listener on an active

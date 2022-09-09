@@ -1,4 +1,4 @@
-package hydro.pi.bridge.susbcription.domain;
+package hydro.pi.bridge.subscription.domain;
 
 import java.lang.reflect.Type;
 

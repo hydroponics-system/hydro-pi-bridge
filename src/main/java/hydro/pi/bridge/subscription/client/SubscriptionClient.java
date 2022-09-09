@@ -1,4 +1,4 @@
-package hydro.pi.bridge.susbcription.client;
+package hydro.pi.bridge.subscription.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +10,8 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import hydro.pi.bridge.common.mapper.HydroMapper;
-import hydro.pi.bridge.susbcription.domain.SocketFrameHandler;
-import hydro.pi.bridge.susbcription.domain.SocketSessionHandler;
+import hydro.pi.bridge.subscription.domain.SocketFrameHandler;
+import hydro.pi.bridge.subscription.domain.SocketSessionHandler;
 import rx.subjects.BehaviorSubject;
 
 /**

@@ -1,7 +1,5 @@
 package hydro.pi.bridge.api;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -10,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 import hydro.pi.bridge.common.mapper.HydroMapper;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
+import hydro.pi.bridge.system.auth.SystemJwtHolder;
 
 /**
  * Api client class for consuming restful endpoints.
@@ -21,45 +20,48 @@ public class ApiClient {
 
     private final RestTemplate restTemplate;
 
-    private String AUTH;
+    private final SystemJwtHolder systemJwtHolder;
 
+    /**
+     * Default constructor for the {@link ApiClient}. It will set the rest template
+     * for the given instance and also pull the active {@link SystemJwtHolder} for
+     * authenticated request.
+     */
     public ApiClient() {
+        this.systemJwtHolder = new SystemJwtHolder();
         this.restTemplate = getRestTemplate();
     }
 
     /**
-     * Method for setting the authorization on requests being sent.
+     * This will do a get on the passed in API. It will then cast the results to an
+     * {@link Object} type.
      * 
-     * @param auth The authorization
+     * @param api The endpoint to hit.
      */
-    public void setAuthorization(String auth) {
-        this.AUTH = auth;
+    public <T> Object get(String api) {
+        return get(api, Object.class);
     }
 
     /**
      * This will do a get on the passed in API. It will then cast the results to the
-     * passed in object.
+     * passed in class.
      * 
      * @param api   The endpoint to hit.
      * @param clazz The class to cast it too.
-     * @throws Exception
      */
-    public <T> T get(String api, Class<T> clazz) throws Exception {
-        return exchange(api, HttpMethod.GET, buildRequestEntity(null, Void.class), clazz).getBody();
+    public <T> T get(String api, Class<T> clazz) {
+        return exchange(api, HttpMethod.GET, buildRequestEntity(Void.class), clazz).getBody();
     }
 
     /**
      * This will do a post on the passed in API. It will then cast the results to
-     * the passed in object.
+     * the a basic {@link Object} type.
      * 
-     * @param <T>  The object to cast the result as.
-     * @param api  The endpoint to hit.
-     * @param body The body to pass with the post request.
-     * @return The passed in object class.
-     * @throws InterruptedException
-     * @throws IOException
+     * @param api     The endpoint to hit.
+     * @param request The body to pass with the post request.
+     * @return {@link Object} type of the return data.
      */
-    public <T> Object post(String api, T request) throws Exception {
+    public Object post(String api, Object request) {
         return post(api, request, Object.class);
     }
 
@@ -71,13 +73,24 @@ public class ApiClient {
      * @param api     The endpoint to hit.
      * @param request The body to pass with the post request.
      * @param clazz   The class to cast it too.
-     * @return The passed in object class.
-     * @throws InterruptedException
-     * @throws IOException
+     * @return The passed in class.
      */
-    public <T> T post(String api, Object request, Class<T> clazz) throws Exception {
-        HttpEntity<Object> requestEntity = new HttpEntity<Object>(request);
-        return exchange(api, HttpMethod.POST, requestEntity, clazz).getBody();
+    public <T> T post(String api, Object request, Class<T> clazz) {
+        return exchange(api, HttpMethod.POST, buildRequestEntity(request, clazz), clazz).getBody();
+    }
+
+    /**
+     * Make an exchange call through the rest template.
+     * 
+     * @param <T>    Typed parameter of the response type.
+     * @param api    The api to hit.
+     * @param method The method to perform on the endpoint.
+     * @param entity The entity instance to pass.
+     * @param clazz  The class to return the response as.
+     * @return Response entity of the returned data.
+     */
+    public <T> ResponseEntity<T> exchange(String api, HttpMethod method, HttpEntity<?> entity, Class<T> clazz) {
+        return restTemplate.exchange(buildUrl(api), method, entity, clazz);
     }
 
     /**
@@ -91,17 +104,16 @@ public class ApiClient {
     }
 
     /**
-     * Make an exchange call through the rest template.
+     * Builds out the request entity to be sent with the request. It will by default
+     * set the authorization and content type on the headers to be sent. This will
+     * just build the headers with no request body sent.
      * 
-     * @param <T>    Typed parameter of the response type.
-     * @param api    The api to hit.
-     * @param method The method to perform on the endpoint.
-     * @param entity The entity instance to pass.
-     * @param clazz  The class to return the response as.
-     * @return Response entity of the returned data.
+     * @param <T>   The generic object type to return.
+     * @param clazz The class to cast the object too
+     * @return A {@link HttpEntity} object.
      */
-    protected <T> ResponseEntity<T> exchange(String api, HttpMethod method, HttpEntity<?> entity, Class<T> clazz) {
-        return restTemplate.exchange(buildUrl(api), method, entity, clazz);
+    private <T> HttpEntity<Object> buildRequestEntity(Class<T> clazz) {
+        return buildRequestEntity(null, clazz);
     }
 
     /**
@@ -113,17 +125,12 @@ public class ApiClient {
      * @param clazz   The class to cast the object too
      * @return A {@link HttpEntity} object.
      */
-    private <T> HttpEntity<T> buildRequestEntity(T request, Class<T> clazz) {
+    private <T> HttpEntity<Object> buildRequestEntity(Object request, Class<T> clazz) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer: " + this.AUTH);
+        headers.set("Authorization", "Bearer: " + systemJwtHolder.getToken());
         headers.set("Content-Type", "application/json");
 
-        if(request == null) {
-            return new HttpEntity<T>(headers);
-        }
-        else {
-            return new HttpEntity<T>(request, headers);
-        }
+        return request == null ? new HttpEntity<Object>(headers) : new HttpEntity<Object>(request, headers);
     }
 
     /**

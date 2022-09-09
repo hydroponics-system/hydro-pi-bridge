@@ -1,6 +1,6 @@
-package hydro.pi.bridge.susbcription.listeners;
+package hydro.pi.bridge.subscription.listeners;
 
-import hydro.pi.bridge.susbcription.domain.Notification;
+import hydro.pi.bridge.subscription.domain.Notification;
 
 /**
  * Listener interface for subscriptions.

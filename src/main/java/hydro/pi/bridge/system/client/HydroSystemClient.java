@@ -3,15 +3,12 @@ package hydro.pi.bridge.system.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
-import hydro.pi.bridge.susbcription.client.SubscriptionClient;
-import hydro.pi.bridge.susbcription.listeners.GeneralNotficationListener;
-import hydro.pi.bridge.susbcription.service.SubscriptionListeners;
+import hydro.pi.bridge.subscription.client.SubscriptionClient;
+import hydro.pi.bridge.subscription.listeners.GeneralNotficationListener;
+import hydro.pi.bridge.subscription.service.SubscriptionListeners;
 import hydro.pi.bridge.system.auth.SystemJwtHolder;
 import hydro.pi.bridge.system.service.SystemAuthenticationService;
 
@@ -44,10 +41,8 @@ public class HydroSystemClient {
      * Start the process for the hydroponic System. This will register a system if
      * it is new or authenticate if the system is already configured. It will also
      * add the defined listeners for the system subscription.
-     * @throws JsonProcessingException
-     * @throws JsonMappingException
      */
-    public void start() throws JsonMappingException, JsonProcessingException {
+    public void start() {
         try {
             systemAuthenticationService.authenticateSystem();
             startSystemSubscription(buildSocketUrl());

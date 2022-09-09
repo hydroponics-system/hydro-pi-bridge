@@ -1,6 +1,6 @@
-package hydro.pi.bridge.susbcription.listeners;
+package hydro.pi.bridge.subscription.listeners;
 
-import hydro.pi.bridge.susbcription.notifications.UserNotification;
+import hydro.pi.bridge.subscription.notifications.UserNotification;
 
 /**
  * General notification listener that gets triggered on base notifications.

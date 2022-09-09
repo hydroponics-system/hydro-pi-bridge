@@ -1,4 +1,4 @@
-package hydro.pi.bridge.susbcription.domain;
+package hydro.pi.bridge.subscription.domain;
 
 /**
  * Added to entities to allow for notification type to be standardized when
