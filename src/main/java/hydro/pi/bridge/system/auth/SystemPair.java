@@ -11,9 +11,11 @@ import hydro.pi.bridge.api.domain.SystemAuthToken;
  * @since September 7, 2022
  */
 public class SystemPair {
-    private final String token;
+    private String token;
 
-    private final HydroSystem system;
+    private HydroSystem system;
+
+    public SystemPair() {}
 
     public SystemPair(SystemAuthToken auth) {
         this.token = auth.getToken();
@@ -26,5 +28,13 @@ public class SystemPair {
 
     public HydroSystem getSystem() {
         return system;
+    }
+
+    /**
+     * Clears the system pair of the current data.
+     */
+    public void remove() {
+        this.token = null;
+        this.system = null;
     }
 }

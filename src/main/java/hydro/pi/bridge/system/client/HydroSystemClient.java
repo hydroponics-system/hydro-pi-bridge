@@ -8,6 +8,7 @@ import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
 import hydro.pi.bridge.subscription.client.SubscriptionClient;
 import hydro.pi.bridge.subscription.listeners.GeneralNotficationListener;
+import hydro.pi.bridge.subscription.listeners.SystemNotficationListener;
 import hydro.pi.bridge.subscription.service.SubscriptionListeners;
 import hydro.pi.bridge.system.auth.SystemJwtHolder;
 import hydro.pi.bridge.system.service.SystemAuthenticationService;
@@ -25,7 +26,7 @@ public class HydroSystemClient {
 
     private SystemAuthenticationService systemAuthenticationService;
 
-    private SystemJwtHolder systemJwtHolder;
+    private static final SystemJwtHolder systemJwtHolder = new SystemJwtHolder();
 
     /**
      * Default constructor for setting up the instances of the system and
@@ -34,7 +35,6 @@ public class HydroSystemClient {
     public HydroSystemClient() {
         this.subscriptionClient = new SubscriptionClient();
         this.systemAuthenticationService = new SystemAuthenticationService();
-        this.systemJwtHolder = new SystemJwtHolder();
     }
 
     /**
@@ -90,5 +90,6 @@ public class HydroSystemClient {
     private void addSystemListeners(SubscriptionClient client) {
         SubscriptionListeners listeners = new SubscriptionListeners(client);
         listeners.register(new GeneralNotficationListener());
+        listeners.register(new SystemNotficationListener());
     }
 }

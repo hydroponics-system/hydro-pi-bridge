@@ -262,8 +262,7 @@ public class SubscriptionClient {
         if(this.session != null && !this.session.isConnected()) {
             if(this.isAsync) {
                 return this.connectAsync();
-            }
-            else {
+            }else {
                 this.connect();
                 this.onDisconnect();
                 return BehaviorSubject.create(this.session);

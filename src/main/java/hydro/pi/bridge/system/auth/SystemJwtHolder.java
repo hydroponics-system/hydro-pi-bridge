@@ -5,45 +5,44 @@ import com.hydro.common.dictionary.data.HydroSystem;
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 
 /**
- * System Jwt Holder class to store authentication token in a thread local
- * instance to be accessed. Although the JWT is held in a static thread local,
- * the methods are non-static so that JwtHolder can be mocked in tests.
+ * System Jwt Holder class to store authentication token in a instance to be
+ * accessed. Although the JWT is held in a static thread local, the methods are
+ * non-static so that JwtHolder can be mocked in tests.
  * 
  * @author Sam Butler
  * @since August 8, 2020
  */
 public class SystemJwtHolder {
-    private static final ThreadLocal<SystemPair> TOKEN = new ThreadLocal<>();
+    private static SystemPair PAIR = new SystemPair();
 
     /**
-     * Set the system pair on the current thread local instance.
+     * Set the system pair on the current instance.
      * 
      * @param token The token to store.
      */
     public void set(SystemAuthToken auth) {
-        SystemPair pair = new SystemPair(auth);
-        TOKEN.set(pair);
+        PAIR = new SystemPair(auth);
     }
 
     /**
-     * Clears the system pair from the current thread local instance.
+     * Clears the system pair from the current instance.
      */
     public void clear() {
-        TOKEN.remove();
+        PAIR.remove();
     }
 
     /**
-     * Gets the current System Pair from the thread local instance.
+     * Gets the current System Pair from the instance.
      * 
-     * @return {@link SystemPair} of the thread local.
+     * @return {@link SystemPair} of the instance.
      */
     public SystemPair get() {
-        return TOKEN.get();
+        return PAIR;
     }
 
     /**
-     * Gets the hydro system from the thread local instance. If the pair of the
-     * local instance is null then it will return null.
+     * Gets the hydro system from the instance. If the pair of the local instance is
+     * null then it will return null.
      * 
      * @return {@link HydroSystem} with the set data.
      */
@@ -53,8 +52,8 @@ public class SystemJwtHolder {
     }
 
     /**
-     * Gets the token from the thread local instance. If the pair of the local
-     * instance is null then it will return null.
+     * Gets the token from the instance. If the pair of the local instance is null
+     * then it will return null.
      * 
      * @return {@link String} of the set token.
      */
