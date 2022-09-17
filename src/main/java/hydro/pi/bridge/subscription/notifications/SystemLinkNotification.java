@@ -10,10 +10,11 @@ import hydro.pi.bridge.subscription.domain.NotificationType;
  * @since September 16, 2022
  */
 public class SystemLinkNotification extends Notification {
-
     private String uuid;
 
     private String code;
+
+    private int userId;
 
     public String getUuid() {
         return uuid;
@@ -29,6 +30,14 @@ public class SystemLinkNotification extends Notification {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     @Override
