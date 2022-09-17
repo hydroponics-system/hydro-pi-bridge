@@ -9,7 +9,8 @@ package hydro.pi.bridge.subscription.domain;
  */
 public enum NotificationType {
     USER("USER"),
-    SYSTEM_FAILURE("SYSTEM_FAILURE");
+    SYSTEM_FAILURE("SYSTEM_FAILURE"),
+    SYSTEM_LINK("SYSTEM_LINK");
 
     private String textId;
 

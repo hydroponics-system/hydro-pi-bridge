@@ -3,15 +3,18 @@ package hydro.pi.bridge.system.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hydro.common.dictionary.data.HydroSystem;
+
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
 import hydro.pi.bridge.subscription.client.SubscriptionClient;
 import hydro.pi.bridge.subscription.listeners.GeneralNotficationListener;
-import hydro.pi.bridge.subscription.listeners.SystemNotficationListener;
+import hydro.pi.bridge.subscription.listeners.SystemLinkNotficationListener;
 import hydro.pi.bridge.subscription.service.SubscriptionListeners;
 import hydro.pi.bridge.system.auth.SystemJwtHolder;
 import hydro.pi.bridge.system.service.SystemAuthenticationService;
+import hydro.pi.bridge.system.service.SystemManagerService;
 
 /**
  * Hydro System client for dealing with the users hydroponic system.
@@ -22,11 +25,13 @@ import hydro.pi.bridge.system.service.SystemAuthenticationService;
 public class HydroSystemClient {
     private final Logger LOGGER = LoggerFactory.getLogger(HydroSystemClient.class);
 
-    private SubscriptionClient subscriptionClient;
+    private final SubscriptionClient subscriptionClient;
 
-    private SystemAuthenticationService systemAuthenticationService;
+    private final SystemAuthenticationService systemAuthenticationService;
 
-    private static final SystemJwtHolder systemJwtHolder = new SystemJwtHolder();
+    private final SystemManagerService systemManagerService;
+
+    private final SystemJwtHolder systemJwtHolder;
 
     /**
      * Default constructor for setting up the instances of the system and
@@ -35,6 +40,8 @@ public class HydroSystemClient {
     public HydroSystemClient() {
         this.subscriptionClient = new SubscriptionClient();
         this.systemAuthenticationService = new SystemAuthenticationService();
+        this.systemManagerService = new SystemManagerService();
+        this.systemJwtHolder = new SystemJwtHolder();
     }
 
     /**
@@ -44,21 +51,14 @@ public class HydroSystemClient {
      */
     public void start() {
         try {
-            systemAuthenticationService.authenticateSystem();
+            HydroSystem system = systemManagerService.registerSystem();
+            systemAuthenticationService.authenticateSystem(system);
             startSystemSubscription(buildSocketUrl());
         }
         catch(Exception e) {
             LOGGER.error("Could not start Hydroponics System!\nERROR -> '{}'", e.getMessage());
             System.exit(1);
         }
-    }
-
-    /**
-     * If the system is not registered yet this method will be used to set that up.
-     * It will use the users credentials to register the system with the System API.
-     */
-    public void registerSystem() {
-        // TODO: Add Funtionality to register a system.
     }
 
     /**
@@ -90,6 +90,6 @@ public class HydroSystemClient {
     private void addSystemListeners(SubscriptionClient client) {
         SubscriptionListeners listeners = new SubscriptionListeners(client);
         listeners.register(new GeneralNotficationListener());
-        listeners.register(new SystemNotficationListener());
+        listeners.register(new SystemLinkNotficationListener());
     }
 }
