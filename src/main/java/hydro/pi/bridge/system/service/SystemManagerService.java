@@ -28,17 +28,14 @@ public class SystemManagerService {
 
     /**
      * Registers the new hydroponics system. If the system has already been
-     * registered than this system will do nothing and return.
+     * registered than this method will do nothing and return.
      */
-    public HydroSystem registerSystem() {
+    public void registerSystem() {
         boolean systemExists = false;
 
         if(!systemExists) {
-            HydroSystem newSystem = buildSystem();
-            newSystem.setUuid(this.apiClient.post(SYSTEM_REGISTER_URL, newSystem, HydroSystem.class).getUuid());
-            return newSystem;
+            this.apiClient.post(SYSTEM_REGISTER_URL, buildSystem(), HydroSystem.class);
         }
-        return null;
     }
 
     /**

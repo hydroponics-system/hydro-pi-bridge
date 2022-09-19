@@ -3,8 +3,6 @@ package hydro.pi.bridge.system.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hydro.common.dictionary.data.HydroSystem;
-
 import hydro.pi.bridge.api.domain.SystemAuthToken;
 import hydro.pi.bridge.api.domain.UserAuthToken;
 import hydro.pi.bridge.environment.PiBridgeEnvironmentService;
@@ -51,8 +49,8 @@ public class HydroSystemClient {
      */
     public void start() {
         try {
-            HydroSystem system = systemManagerService.registerSystem();
-            systemAuthenticationService.authenticateSystem(system);
+            systemManagerService.registerSystem();
+            systemAuthenticationService.authenticateSystem(null);
             startSystemSubscription(buildSocketUrl());
         }
         catch(Exception e) {

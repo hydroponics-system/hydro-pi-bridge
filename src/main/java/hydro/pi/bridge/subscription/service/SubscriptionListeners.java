@@ -18,7 +18,7 @@ import hydro.pi.bridge.subscription.listeners.Listener;
  */
 public class SubscriptionListeners {
 
-    private List<Listener<?>> listeners;
+    private static List<Listener<?>> listeners;
 
     private SubscriptionClient client;
 
@@ -31,7 +31,7 @@ public class SubscriptionListeners {
     public SubscriptionListeners(SubscriptionClient client) {
         Assert.notNull(client.getSession(), "Client requires an active session!");
         this.client = client;
-        listeners = new ArrayList<>();
+        listeners = new ArrayList<Listener<?>>();
     }
 
     /**
@@ -46,6 +46,16 @@ public class SubscriptionListeners {
 
         listeners.add(l);
         client.listen(l.url(), l.type()).subscribe(res -> l.run(res));
+    }
+
+    /**
+     * Remove the specified class listener if it exists in the list.
+     * 
+     * @param <T>   The generic type of the class.
+     * @param clazz The class to be removed.
+     */
+    public <T extends Listener<?>> void remove(Class<T> clazz) {
+        listeners.removeIf(l -> l.getClass().equals(clazz));
     }
 
     /**
